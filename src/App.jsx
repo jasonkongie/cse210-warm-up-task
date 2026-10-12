@@ -66,6 +66,7 @@ function App() {
               subtitle: 'Ts is definitely not an addiction...',
               x_axis_label: 'Time (months)',
               y_axis_label: '# Smitskis Owned',
+              legend: 'Smitskis',
             }}
           />
         ) : (
