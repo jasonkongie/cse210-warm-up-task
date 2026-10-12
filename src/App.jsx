@@ -1,121 +1,109 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import Graph from './graph/Graph.jsx'
 import './App.css'
 
+const SAMPLE = `1, 2
+2, 5
+3, 3
+4, 8
+5, 6
+6, 9`
+
+const SCATTER_SAMPLE = `1920, 1080, 4820
+1366, 768, 2150
+1536, 864, 1730
+1440, 900, 960
+2560, 1440, 410
+1280, 720, 180
+390, 844, 3890
+360, 800, 2640
+414, 896, 1120
+768, 1024, 340`
+
+// Turns "x, y" lines into points, skipping any line that isn't two numbers.
+function parsePoints(text) {
+  return text
+    .split('\n')
+    .map((line) => line.split(',').map(parseFloat))
+    .filter(
+      (nums) =>
+        nums.length >= 2 &&
+        nums.length <= 3 &&
+        nums.every(Number.isFinite)
+    )
+    .map(([x, y, z]) => (z === undefined ? { x, y } : { x, y, z }))
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [text, setText] = useState(SAMPLE)
+  const [scatter_text, setScatterText] = useState(SCATTER_SAMPLE)
+  const [type, setType] = useState('scatter')
+  const points = parsePoints(text)
+  const scatter_points = parsePoints(scatter_text)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="app">
+      <h1>Graphing tool</h1>
+      <br/>
+      <br/>
+      <div className="layout">
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="controls">
+          <label htmlFor="points">Points (x, y)</label>
+          <textarea
+            id="points"
+            rows={10}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {points.length >= 2 ? (
+          <Graph 
+            points={points} 
+            type={type} 
+            labels={{
+              title: 'My Growing Smitski Collection',
+              subtitle: 'Ts is definitely not an addiction...',
+              x_axis_label: 'Time (months)',
+              y_axis_label: '# Smitskis Owned',
+            }}
+          />
+        ) : (
+          <p className="message">Enter at least two points, like 1, 2</p>
+        )}
+      </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+
+
+      <div className="layout">
+        <div className="controls">
+          <label htmlFor="scatter_points">Points (x, y, size)</label>
+          <textarea
+            id="scatter_points"
+            rows={10}
+            value={scatter_text}
+            onChange={(e) => setScatterText(e.target.value)}
+          />
+        </div>
+          {scatter_points.length >= 2 ? (
+          <Graph 
+            points={scatter_points} 
+            type={type} 
+            labels={{
+              title: 'Page Visits by Screen Resolution',
+              subtitle: 'Dot area is proportional to visit count',
+              x_axis_label: 'Resolution Width',
+              y_axis_label: 'Resolution Height',
+            }}
+          />
+        ) : (
+          <p className="message">Enter at least two points, like 1, 2</p>
+        )}
+      </div>
+
+
+      
+    </main>
   )
 }
 
