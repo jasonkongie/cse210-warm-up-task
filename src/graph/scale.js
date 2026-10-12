@@ -13,3 +13,7 @@ export function scale(domainMin, domainMax, rangeMin, rangeMax) {
 export function ticks(min, max, count = 5) {
   return Array.from({ length: count + 1 }, (_, i) => min + ((max - min) * i) / count)
 }
+
+export function gridlines(min, max, count = 5) {
+  return ticks(min, max, count).slice(1, -1)
+}
