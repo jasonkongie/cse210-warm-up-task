@@ -108,6 +108,24 @@
     stroke: #fff;
     stroke-width: 1;
   }
+
+  .hit {
+    fill: transparent;
+  }
+
+  .tooltip {
+    pointer-events: none;
+
+    rect {
+      fill: var(--bg);
+      stroke: var(--border);
+    }
+
+    text {
+      font-size: 8px;
+      fill: var(--text-h);
+    }
+  }
 }
 
 .message {

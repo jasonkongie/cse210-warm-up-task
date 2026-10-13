@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { scale, ticks, gridlines } from './scale.js'
+import Legend from './Legend.jsx'
+import Tooltip from './Tooltip.jsx'
 
 const DEFAULT_LABELS = {
   title: 'Your Title',
@@ -16,11 +19,13 @@ const TITLE_TEXT_SIZE = 15
 const TICK_SIZE = 5
 const MIN_RADIUS = 3
 const MAX_RADIUS = 100
+const MIN_HOVER_TARGET_RADIUS = 10
 
 const round = (v) => Math.round(v * 10) / 10
 
 // Draws `points` ([{ x, y }, ...]) as a scatter or line plot.
 export default function Graph({ points, type = 'scatter', labels = {} }) {
+  const [hovered, setHovered] = useState(null)
 
   const { title, subtitle, x_axis_label, y_axis_label } = { ...DEFAULT_LABELS, ...labels }
   const xs = points.map((p) => p.x)
@@ -80,6 +85,9 @@ export default function Graph({ points, type = 'scatter', labels = {} }) {
       >
         {subtitle}
       </text>
+
+      {/* LEGEND */}
+      <Legend sizes={sizes} name={labels.legend} toRadius={toRadius} right={right} />
 
       {/* AXES */}
       <line className="axis" x1={left} y1={bottom} x2={right} y2={bottom} />
@@ -141,6 +149,27 @@ export default function Graph({ points, type = 'scatter', labels = {} }) {
         ))
       )}
       
+      {/* HOVER TARGETS + TOOLTIP */}
+      {points.map((p, i) => (
+        <circle
+          key={i}
+          className="hit"
+          cx={toX(p.x)}
+          cy={toY(p.y)}
+          r={Math.max(toRadius(p.z), MIN_HOVER_TARGET_RADIUS)}
+          onMouseEnter={() => setHovered(i)}
+          onMouseLeave={() => setHovered(null)}
+        />
+      ))}
+      <Tooltip
+        point={hovered !== null ? points[hovered] : null}
+        type={type}
+        toX={toX}
+        toY={toY}
+        toRadius={toRadius}
+        bounds={{ left, right, top }}
+      />
+
     </svg>
   )
 }
