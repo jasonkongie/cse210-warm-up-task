@@ -1,6 +1,4 @@
 import { useCallback, useState } from 'react'
-import TopNav from './components/TopNav.jsx'
-import TitleBar from './components/TitleBar.jsx'
 import ChartTypePicker from './components/ChartTypePicker.jsx'
 import DataPanel from './components/DataPanel.jsx'
 import ChartPreview from './components/ChartPreview.jsx'
@@ -14,29 +12,30 @@ export default function App() {
   const update = useCallback((patch) => setState((s) => ({ ...s, ...patch })), [])
 
   /** Replace the whole dataset (file drop). Rebuilds series from the new columns. */
-  const importData = useCallback(({ columns, rows }) => {
-    setState((s) => ({ ...s, columns, rows, series: seriesFromColumns(columns) }))
+  const importData = useCallback(({ columns, numericColumns, issues = [], sourceName }) => {
+    setState((s) => ({
+      ...s,
+      sourceName,
+      columns,
+      rows: undefined,
+      numericColumns,
+      series: seriesFromColumns(columns),
+      parseIssues: issues,
+    }))
   }, [])
 
   const resetSpecs = useCallback(() => update({ ...DEFAULT_SPECS }), [update])
 
   return (
     <div className="app">
-      <TopNav userInitials="LK" />
       <main className="page">
-        <TitleBar
-          graphName={state.graphName}
-          onRename={(graphName) => update({ graphName })}
-          onNewGraph={() => setState(initialState)}
-        />
-
         <div className="workspace">
           <aside className="column column-left">
             <ChartTypePicker
               value={state.chartType}
               onChange={(chartType) => update({ chartType })}
             />
-            <DataPanel state={state} onImport={importData} />
+            <DataPanel state={state} onImport={importData} onEmptyCellsChange={(emptyCells) => update({ emptyCells })} />
           </aside>
 
           <section className="column column-center">
@@ -47,11 +46,10 @@ export default function App() {
             <SpecsPanel state={state} update={update} onReset={resetSpecs} />
           </aside>
         </div>
-
-        <footer className="page-footer">
-          We are selling your data. Don&apos;t say we didn&apos;t warn you.
-        </footer>
       </main>
+      <footer className="page-footer">
+        <a href="./home.html">Back to 78js</a>
+      </footer>
     </div>
   )
 }
